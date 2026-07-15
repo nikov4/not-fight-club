@@ -82,3 +82,26 @@ h1 {
   width: 100px;
   padding: 10px;
 }
+
+/* settings page */
+
+.settings-container {
+  width: 100%;
+  padding: 30px 20px;
+  display: flex;
+  text-align: left;
+  align-self: flex-start;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-self: center;
+  gap: 10px;
+}
+
+.settings-button {
+  font-size: 12px;
+  padding: 2.5px;
+}
+
+.settings-input {
+  font-size: 15px;
+}

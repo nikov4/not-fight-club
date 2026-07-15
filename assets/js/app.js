@@ -150,7 +150,65 @@ function settings() {
   document.title = title + " - Settings";
   window.history.pushState({}, "", "/settings");
   document.getElementById("pageName").textContent = "Settings";
-  console.log("id=", player.id, "name=", player.name);
+
+  // refresh data
+  player = JSON.parse(localStorage.getItem(player.id));
+
+  let settingsContainer = mainContainer.appendChild(document.createElement("div"));
+  settingsContainer.classList.add("settings-container");
+
+  element = settingsContainer.appendChild(document.createElement("div"));
+  element.appendChild(document.createTextNode("Player Name:"));
+
+  element = settingsContainer.appendChild(document.createElement("div"));
+  element.appendChild(document.createTextNode(player.name));
+
+  //element = settingsContainer.appendChild(document.createElement("div"));
+  element = settingsContainer.appendChild(document.createElement("button"));
+  element.addEventListener("click", () => {
+    settingsEdit();
+  });
+  element.classList.add("settings-button");
+  element.setAttribute("type", "button");
+  element = element.appendChild(document.createTextNode("edit"));
+
+  // settingsEdit
+  function settingsEdit() {
+    settingsContainer.replaceChildren();
+
+    element = settingsContainer.appendChild(document.createElement("div"));
+    element.appendChild(document.createTextNode("Player Name:"));
+
+    element = settingsContainer.appendChild(document.createElement("div"));
+    element = element.appendChild(document.createElement("input"));
+    element.setAttribute("value", player.name);
+    element.addEventListener("input", (e) => {
+      if (e.target.value.trim() !== "") {
+        document.querySelector(".settings-button").removeAttribute("disabled", "disabled");
+      } else {
+        document.querySelector(".settings-button").setAttribute("disabled", "disabled");
+      }
+    });
+    element.classList.add("settings-input");
+    element.setAttribute("type", "text");
+    element.setAttribute("id", "settingsName");
+
+    element = settingsContainer.appendChild(document.createElement("button"));
+    element.addEventListener("click", () => {
+      settingsSave(document.getElementById("settingsName").value.trim());
+    });
+    element.classList.add("settings-button");
+    element.setAttribute("type", "button");
+    element = element.appendChild(document.createTextNode("save"));
+  }
+
+  // settingsSave
+  function settingsSave(nameNew) {
+    player.name = nameNew;
+    localStorage[player.id] = JSON.stringify(player);
+    settingsContainer.replaceChildren();
+    settings();
+  }
 }
 
 // battle
