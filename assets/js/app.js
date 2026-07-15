@@ -122,7 +122,17 @@ function home() {
   document.title = title + " - Main";
   window.history.pushState({}, "", "./index.html");
   document.getElementById("pageName").textContent = "Main";
-  console.log("id=", player.id, "name=", player.name);
+
+  let mainButtonContainer = mainContainer.appendChild(document.createElement("div"));
+  mainButtonContainer.classList.add("main-container");
+
+  element = mainButtonContainer.appendChild(document.createElement("button"));
+  element.addEventListener("click", () => {
+    battle();
+  });
+  element.classList.add("main-button");
+  element.setAttribute("type", "button");
+  element = element.appendChild(document.createTextNode("Fight!"));
 }
 
 // character

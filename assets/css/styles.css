@@ -66,3 +66,19 @@ h1 {
 .register-button {
   width: 50%;
 }
+
+/* main page */
+
+.main-container {
+  height: calc(100vh - 60px);
+  display: flex;
+  align-self: center;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+}
+
+.main-button {
+  width: 100px;
+  padding: 10px;
+}
