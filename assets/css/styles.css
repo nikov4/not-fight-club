@@ -67,7 +67,7 @@ h1 {
   width: 50%;
 }
 
-/* main page */
+/* main screen */
 
 .main-container {
   height: calc(100vh - 60px);
@@ -75,7 +75,6 @@ h1 {
   align-self: center;
   flex-direction: column;
   justify-content: center;
-  align-self: center;
 }
 
 .main-button {
@@ -83,7 +82,7 @@ h1 {
   padding: 10px;
 }
 
-/* settings page */
+/* settings screen */
 
 .settings-container {
   width: 100%;
@@ -93,7 +92,6 @@ h1 {
   align-self: flex-start;
   flex-direction: row;
   justify-content: flex-start;
-  align-self: center;
   gap: 10px;
 }
 
@@ -104,4 +102,39 @@ h1 {
 
 .settings-input {
   font-size: 15px;
+}
+
+/* character screen */
+
+.character-container {
+  width: 100%;
+  padding: 20px 0;
+  display: flex;
+  text-align: left;
+  align-self: flex-start;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 30px;
+}
+
+.character-stat {
+  display: flex;
+  align-self: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.character-name {
+  font-size: 16px;
+}
+
+.character-wins {
+  font-size: 14px;
+  color: green;
+}
+
+.character-loses {
+  font-size: 14px;
+  color: red;
 }

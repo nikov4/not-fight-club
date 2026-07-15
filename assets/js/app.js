@@ -141,7 +141,30 @@ function character() {
   document.getElementById("pageName").textContent = "Character";
   document.title = title + " - Character";
   window.history.pushState({}, "", "/character");
-  console.log("id=", player.id, "name=", player.name);
+
+  let characterSrc = "../assets/images/" + player.avatar + ".png";
+
+  let characterContainer = mainContainer.appendChild(document.createElement("div"));
+  characterContainer.classList.add("character-container");
+
+  characterImage = characterContainer.appendChild(document.createElement("div"));
+  characterImage = characterContainer.appendChild(document.createElement("img"));
+  characterImage.setAttribute("src", characterSrc);
+
+  let characterStat = characterContainer.appendChild(document.createElement("div"));
+  characterStat.classList.add("character-stat");
+
+  element = characterStat.appendChild(document.createElement("div"));
+  element.appendChild(document.createTextNode(player.name));
+  element.classList.add("character-name");
+
+  element = characterStat.appendChild(document.createElement("div"));
+  element.classList.add("character-wins");
+  element.appendChild(document.createTextNode("Wins: " + player.wins));
+
+  element = characterStat.appendChild(document.createElement("div"));
+  element.classList.add("character-loses");
+  element.appendChild(document.createTextNode("Loses: " + player.loses));
 }
 
 // settings
@@ -163,7 +186,6 @@ function settings() {
   element = settingsContainer.appendChild(document.createElement("div"));
   element.appendChild(document.createTextNode(player.name));
 
-  //element = settingsContainer.appendChild(document.createElement("div"));
   element = settingsContainer.appendChild(document.createElement("button"));
   element.addEventListener("click", () => {
     settingsEdit();
