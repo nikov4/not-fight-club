@@ -82,8 +82,72 @@ function register() {
   registerCheck();
 }
 
-// home
+// menu
+function menu() {
+  mainContainer.replaceChildren();
+  let navContaner = mainContainer.appendChild(document.createElement("div"));
+  navContaner.classList.add("nav-container");
+
+  element = navContaner.appendChild(document.createElement("h5"));
+  element.setAttribute("id", "pageName");
+
+  let navItems = navContaner.appendChild(document.createElement("div"));
+  navItems.classList.add("nav-items");
+
+  element = navItems.appendChild(document.createElement("div"));
+  element.addEventListener("click", () => {
+    home();
+  });
+  element.appendChild(document.createTextNode("Home"));
+  element.classList.add("nav-item");
+
+  element = navItems.appendChild(document.createElement("div"));
+  element.addEventListener("click", () => {
+    character();
+  });
+  element.appendChild(document.createTextNode("Character"));
+  element.classList.add("nav-item");
+
+  element = navItems.appendChild(document.createElement("div"));
+  element.addEventListener("click", () => {
+    settings();
+  });
+  element.appendChild(document.createTextNode("Settings"));
+  element.classList.add("nav-item");
+}
+
+// main
 function home() {
-  document.title = title + " - Home";
+  menu();
+  document.title = title + " - Main";
+  window.history.pushState({}, "", "./index.html");
+  document.getElementById("pageName").textContent = "Main";
+  console.log("id=", player.id, "name=", player.name);
+}
+
+// character
+function character() {
+  menu();
+  document.getElementById("pageName").textContent = "Character";
+  document.title = title + " - Character";
+  window.history.pushState({}, "", "/character");
+  console.log("id=", player.id, "name=", player.name);
+}
+
+// settings
+function settings() {
+  menu();
+  document.title = title + " - Settings";
+  window.history.pushState({}, "", "/settings");
+  document.getElementById("pageName").textContent = "Settings";
+  console.log("id=", player.id, "name=", player.name);
+}
+
+// battle
+function battle() {
+  menu();
+  document.title = title + " - Battle";
+  window.history.pushState({}, "", "/battle");
+  document.getElementById("pageName").textContent = "Battle";
   console.log("id=", player.id, "name=", player.name);
 }
