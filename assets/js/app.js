@@ -1,3 +1,7 @@
+// Avatars
+const Avatars = ["default", "hero-01", "hero-02", "hero-03", "hero-04", "hero-05"];
+
+// Player
 class Player {
   constructor(id, name, avatar, wins, loses) {
     this.id = id;
@@ -85,6 +89,12 @@ function register() {
 // menu
 function menu() {
   mainContainer.replaceChildren();
+
+  const modalWrappper = mainContainer.appendChild(document.createElement("div"));
+  modalWrappper.classList.add("modal-wrapper");
+  const modalWindow = modalWrappper.appendChild(document.createElement("div"));
+  modalWindow.classList.add("modal-window");
+
   let navContaner = mainContainer.appendChild(document.createElement("div"));
   navContaner.classList.add("nav-container");
 
@@ -142,14 +152,82 @@ function character() {
   document.title = title + " - Character";
   window.history.pushState({}, "", "#character");
 
-  let characterSrc = "../assets/images/" + player.avatar + ".png";
+  const modalWrapper = document.querySelector(".modal-wrapper");
+  const modalWindow = document.querySelector(".modal-window");
+  const modalButton = document.querySelector(".modal-button");
+
+  let avatarSrc = "../assets/images/" + player.avatar + ".png";
 
   let characterContainer = mainContainer.appendChild(document.createElement("div"));
   characterContainer.classList.add("character-container");
 
-  characterImage = characterContainer.appendChild(document.createElement("div"));
-  characterImage = characterContainer.appendChild(document.createElement("img"));
-  characterImage.setAttribute("src", characterSrc);
+  //characterAvatar = characterContainer.appendChild(document.createElement("div"));
+  characterAvatarButton = characterContainer.appendChild(document.createElement("div"));
+  characterAvatarButton.classList.add("character-edit-button");
+  characterAvatarButton.appendChild(document.createTextNode("Edit"));
+  characterAvatar = characterContainer.appendChild(document.createElement("img"));
+  characterAvatar.addEventListener("mouseenter", () => {
+    characterAvatarButton.classList.add("edit-button__active");
+  });
+  characterAvatarButton.addEventListener("mouseenter", () => {
+    characterAvatarButton.classList.add("edit-button__active");
+  });
+  characterAvatar.addEventListener("mouseleave", () => {
+    characterAvatarButton.classList.remove("edit-button__active");
+  });
+  characterAvatarButton.addEventListener("click", () => {
+    characterAvatarButton.classList.remove("edit-button__active");
+    characterAvatarEdit();
+  });
+  characterAvatar.setAttribute("src", avatarSrc);
+
+  // change avatar
+  function characterAvatarEdit() {
+    modalWrapper.style.display = "block";
+    modalWindow.style.display = "block";
+    modalWindow.classList.toggle("modal__active");
+
+    // modal close button
+    let modalButtonBox = modalWindow.appendChild(document.createElement("div"));
+    modalButtonBox.classList.add("modal-button-container");
+    modalButtonBox = modalButtonBox.appendChild(document.createElement("div"));
+    modalButtonBox.classList.add("modal-button");
+    let modalButtonLine = modalButtonBox.appendChild(document.createElement("span"));
+    modalButtonLine.classList.add("modal-line", "modal-line-top");
+    modalButtonLine = modalButtonBox.appendChild(document.createElement("span"));
+    modalButtonLine.classList.add("modal-line", "modal-line-bottom");
+
+    modalButtonBox.addEventListener("click", function (event) {
+      modalWrapper.style.display = "none";
+      modalWindow.style.display = "none";
+      modalWindow.replaceChildren();
+      modalWindow.classList.remove("modal__active");
+    });
+
+    // modal avatar container
+    modal = modalWindow.appendChild(document.createElement("div"));
+    modal.classList.add("modal-container");
+    element = modal.appendChild(document.createElement("h5"));
+    element.classList.add("avatar-caption");
+    element.appendChild(document.createTextNode("Change avatar"));
+    let avatarContainer = modal.appendChild(document.createElement("div"));
+    avatarContainer.classList.add("avatar-container");
+    for (const avatar of Avatars) {
+      avatarSrc = "../assets/images/" + avatar + ".png";
+      element = avatarContainer.appendChild(document.createElement("div"));
+      avatarContainer.classList.add("avatar-item");
+      avatarImmage = element.appendChild(document.createElement("img"));
+      avatarImmage.setAttribute("src", avatarSrc);
+      avatarImmage.classList.add("avatar-image");
+      avatarImmage.addEventListener("click", function (event) {
+        console.log("avatar selected", avatar);
+        player.avatar = avatar;
+        localStorage[player.id] = JSON.stringify(player);
+        characterContainer.replaceChildren();
+        character();
+      });
+    }
+  }
 
   let characterStat = characterContainer.appendChild(document.createElement("div"));
   characterStat.classList.add("character-stat");
