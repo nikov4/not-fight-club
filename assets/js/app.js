@@ -140,7 +140,7 @@ function character() {
   menu();
   document.getElementById("pageName").textContent = "Character";
   document.title = title + " - Character";
-  window.history.pushState({}, "", "/character");
+  window.history.pushState({}, "", "#character");
 
   let characterSrc = "../assets/images/" + player.avatar + ".png";
 
@@ -171,7 +171,7 @@ function character() {
 function settings() {
   menu();
   document.title = title + " - Settings";
-  window.history.pushState({}, "", "/settings");
+  window.history.pushState({}, "", "#settings");
   document.getElementById("pageName").textContent = "Settings";
 
   // refresh data
@@ -194,7 +194,7 @@ function settings() {
   element.setAttribute("type", "button");
   element = element.appendChild(document.createTextNode("edit"));
 
-  // settingsEdit
+  // settings edit
   function settingsEdit() {
     settingsContainer.replaceChildren();
 
@@ -224,7 +224,7 @@ function settings() {
     element = element.appendChild(document.createTextNode("save"));
   }
 
-  // settingsSave
+  // settings save
   function settingsSave(nameNew) {
     player.name = nameNew;
     localStorage[player.id] = JSON.stringify(player);
@@ -237,7 +237,7 @@ function settings() {
 function battle() {
   menu();
   document.title = title + " - Battle";
-  window.history.pushState({}, "", "/battle");
+  window.history.pushState({}, "", "#battle");
   document.getElementById("pageName").textContent = "Battle";
   console.log("id=", player.id, "name=", player.name);
 }
