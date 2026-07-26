@@ -156,7 +156,7 @@ function character() {
   const modalWindow = document.querySelector(".modal-window");
   const modalButton = document.querySelector(".modal-button");
 
-  let avatarSrc = "../assets/images/" + player.avatar + ".png";
+  let avatarSrc = "./assets/images/" + player.avatar + ".png";
 
   let characterContainer = mainContainer.appendChild(document.createElement("div"));
   characterContainer.classList.add("character-container");
@@ -213,7 +213,7 @@ function character() {
     let avatarContainer = modal.appendChild(document.createElement("div"));
     avatarContainer.classList.add("avatar-container");
     for (const avatar of Avatars) {
-      avatarSrc = "../assets/images/" + avatar + ".png";
+      avatarSrc = "./assets/images/" + avatar + ".png";
       element = avatarContainer.appendChild(document.createElement("div"));
       avatarContainer.classList.add("avatar-item");
       avatarImmage = element.appendChild(document.createElement("img"));
