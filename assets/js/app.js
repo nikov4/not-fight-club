@@ -3,12 +3,16 @@ const Avatars = ["default", "hero-01", "hero-02", "hero-03", "hero-04", "hero-05
 
 // Player
 class Player {
-  constructor(id, name, avatar, wins, loses) {
+  constructor(id, name, avatar, hp, wins, loses, attack, defence1, defence2) {
     this.id = id;
     this.name = name;
     this.avatar = avatar;
+    this.hp = hp;
     this.wins = wins;
     this.loses = loses;
+    this.attack = attack;
+    this.defence1 = defence1;
+    this.defence2 = defence2;
   }
 }
 
@@ -26,6 +30,7 @@ registerCheck();
 
 // check registration
 function registerCheck() {
+  /*
   let keys = Object.keys(localStorage);
   for (let key of keys) {
     let value = localStorage.getItem(key);
@@ -34,7 +39,10 @@ function registerCheck() {
       player = JSON.parse(localStorage.getItem(key));
     }
   }
-  if (player === undefined) {
+  */
+  player = JSON.parse(localStorage.getItem("player"));
+  console.log("player=", player);
+  if (player === null || player === undefined) {
     registerForm();
   } else {
     home();
@@ -79,8 +87,9 @@ function registerForm() {
 // registration
 function register() {
   let playerName = document.getElementById("registerName").value.trim();
-  let playerId = Math.floor(Math.random() * 10000);
-  const player = new Player(playerId, playerName, "default", 0, 0);
+  // let playerId = Math.floor(Math.random() * 10000);
+  const playerId = "player";
+  const player = new Player(playerId, playerName, "default", 150, 0, 0, "", "", "");
   localStorage[playerId] = JSON.stringify(player);
   mainContainer.replaceChildren();
   registerCheck();
@@ -220,7 +229,6 @@ function character() {
       avatarImmage.setAttribute("src", avatarSrc);
       avatarImmage.classList.add("avatar-image");
       avatarImmage.addEventListener("click", function (event) {
-        console.log("avatar selected", avatar);
         player.avatar = avatar;
         localStorage[player.id] = JSON.stringify(player);
         characterContainer.replaceChildren();
