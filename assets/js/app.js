@@ -6,7 +6,7 @@ const Zones = ["Head", "Neck", "Body", "Belly", "Legs"];
 
 // Player
 class Player {
-  constructor(id, name, avatar, initialHp, currentHp, wins, loses, attack, defence1, defence2) {
+  constructor(id, name, avatar, initialHp, currentHp, wins, loses, attack, defence1, defence2, enemy) {
     this.id = id;
     this.name = name;
     this.avatar = avatar;
@@ -17,6 +17,7 @@ class Player {
     this.attack = attack;
     this.defence1 = defence1;
     this.defence2 = defence2;
+    this.enemy = enemy;
   }
 }
 
@@ -94,7 +95,7 @@ function register() {
   // player
   let playerName = document.getElementById("registerName").value.trim();
   const playerId = "player";
-  const player = new Player(playerId, playerName, "default", 150, 150, 0, 0, "", "", "");
+  const player = new Player(playerId, playerName, "default", 150, 150, 0, 0, "", "", "", 0);
   localStorage[playerId] = JSON.stringify(player);
   // enemies
   let j = 0;
@@ -117,9 +118,9 @@ function register() {
 function menu() {
   mainContainer.replaceChildren();
 
-  const modalWrappper = mainContainer.appendChild(document.createElement("div"));
-  modalWrappper.classList.add("modal-wrapper");
-  const modalWindow = modalWrappper.appendChild(document.createElement("div"));
+  const modalWrapper = mainContainer.appendChild(document.createElement("div"));
+  modalWrapper.classList.add("modal-wrapper");
+  const modalWindow = modalWrapper.appendChild(document.createElement("div"));
   modalWindow.classList.add("modal-window");
 
   let navContaner = mainContainer.appendChild(document.createElement("div"));
@@ -179,16 +180,11 @@ function character() {
   document.title = title + " - Character";
   window.history.pushState({}, "", "#character");
 
-  const modalWrapper = document.querySelector(".modal-wrapper");
-  const modalWindow = document.querySelector(".modal-window");
-  const modalButton = document.querySelector(".modal-button");
-
   let avatarSrc = "./assets/images/" + player.avatar + ".png";
 
   let characterContainer = mainContainer.appendChild(document.createElement("div"));
   characterContainer.classList.add("character-container");
 
-  //characterAvatar = characterContainer.appendChild(document.createElement("div"));
   characterAvatarButton = characterContainer.appendChild(document.createElement("div"));
   characterAvatarButton.classList.add("character-edit-button");
   characterAvatarButton.appendChild(document.createTextNode("Edit"));
@@ -210,6 +206,9 @@ function character() {
 
   // change avatar
   function characterAvatarEdit() {
+    const modalWrapper = document.querySelector(".modal-wrapper");
+    const modalWindow = document.querySelector(".modal-window");
+    const modalButton = document.querySelector(".modal-button");
     modalWrapper.style.display = "block";
     modalWindow.style.display = "block";
     modalWindow.classList.toggle("modal__active");
@@ -222,8 +221,6 @@ function character() {
     let modalButtonLine = modalButtonBox.appendChild(document.createElement("span"));
     modalButtonLine.classList.add("modal-line", "modal-line-top");
     modalButtonLine = modalButtonBox.appendChild(document.createElement("span"));
-    modalButtonLine.classList.add("modal-line", "modal-line-bottom");
-
     modalButtonBox.addEventListener("click", function (event) {
       modalWrapper.style.display = "none";
       modalWindow.style.display = "none";
@@ -344,17 +341,46 @@ function battle() {
   window.history.pushState({}, "", "#battle");
   document.getElementById("pageName").textContent = "Battle";
 
+  // modal
+  const modalWrapper = document.querySelector(".modal-wrapper");
+  const modalWindow = document.querySelector(".modal-window");
+
+  // modal close button
+  let modalButtonBox = modalWindow.appendChild(document.createElement("div"));
+  modalButtonBox.classList.add("modal-button-container");
+  modalButtonBox = modalButtonBox.appendChild(document.createElement("div"));
+  modalButtonBox.classList.add("modal-button");
+  let modalButtonLine = modalButtonBox.appendChild(document.createElement("span"));
+  modalButtonLine.classList.add("modal-line", "modal-line-top");
+  modalButtonLine = modalButtonBox.appendChild(document.createElement("span"));
+  modalButtonLine.classList.add("modal-line", "modal-line-bottom");
+
+  // modal button
+  modalButtonBox.addEventListener("click", function (event) {
+    modalWrapper.style.display = "none";
+    modalWindow.style.display = "none";
+    modalWindow.replaceChildren();
+    modalWindow.classList.remove("modal__active");
+    mainContainer.replaceChildren();
+    character();
+  });
+
   // get random enemy
-  const enemyNum = Math.floor(Math.random() * 5);
-  let keys = Object.keys(localStorage);
-  let j = 0;
-  for (let key of keys) {
-    let value = localStorage.getItem(key);
-    const keyHasNumber = /\d/.test(key);
-    if (keyHasNumber === true && j === enemyNum) {
-      enemy = JSON.parse(localStorage.getItem(key));
+  if (player.enemy === 0) {
+    const enemyNum = Math.floor(Math.random() * 5);
+    let keys = Object.keys(localStorage);
+    let j = 0;
+    for (let key of keys) {
+      let value = localStorage.getItem(key);
+      const keyHasNumber = /\d/.test(key);
+      if (keyHasNumber === true && j === enemyNum) {
+        enemy = JSON.parse(localStorage.getItem(key));
+      }
+      j++;
     }
-    j++;
+  } else {
+    // continue fight
+    enemy = JSON.parse(localStorage.getItem(player.enemy));
   }
 
   if (enemy !== undefined) {
@@ -474,9 +500,11 @@ function battle() {
     }
 
     // battle move
+    let battleFinished = false;
     function battleMove() {
       player = JSON.parse(localStorage.getItem("player"));
       enemy = JSON.parse(localStorage.getItem(enemy.id));
+      player.enemy = enemy.id;
       const zonesAttack = document.querySelectorAll('input[name="attack"]:checked');
       const zonesDefence = document.querySelectorAll('input[name="defence"]:checked');
       for (let zoneChecked of zonesAttack) {
@@ -528,7 +556,23 @@ function battle() {
       hpEnemy.replaceChildren();
       hpEnemy.appendChild(document.createTextNode(`${enemy.currentHp} / ${enemy.initialHp}`));
       localStorage[enemy.id] = JSON.stringify(enemy);
-      fillHp("hpEnemy");
+      if (enemy.currentHp <= 0) {
+        modalWrapper.style.display = "block";
+        modalWindow.style.display = "block";
+        modalWindow.classList.toggle("modal__active");
+        // modal container
+        modal = modalWindow.appendChild(document.createElement("div"));
+        modal.classList.add("modal-container");
+        element = modal.appendChild(document.createElement("h5"));
+        element.classList.add("result-container");
+        element.appendChild(document.createTextNode("You Win!"));
+        battleFinished = true;
+        // increment wins
+        player.wins = player.wins + 1;
+        enemy.loses = enemy.loses + 1;
+      } else {
+        fillHp("hpEnemy");
+      }
 
       // enemy attack
       if (enemy.attack === player.defence1 || enemy.attack === player.defence2) {
@@ -548,12 +592,40 @@ function battle() {
       } else {
         player.currentHp = currentHp - damage;
       }
-      localStorage["player"] = JSON.stringify(player);
       hpPlayer.replaceChildren();
       hpPlayer.appendChild(document.createTextNode(`${player.currentHp} / ${player.initialHp}`));
-      localStorage["player"] = JSON.stringify(player);
-      fillHp("hpPlayer");
+      if (player.currentHp <= 0) {
+        modalWrapper.style.display = "block";
+        modalWindow.style.display = "block";
+        modalWindow.classList.toggle("modal__active");
+        // modal avatar container
+        modal = modalWindow.appendChild(document.createElement("div"));
+        modal.classList.add("modal-container");
+        element = modal.appendChild(document.createElement("h5"));
+        element.classList.add("result-container");
+        element.appendChild(document.createTextNode("You Lose"));
+        battleFinished = true;
+        // increment loses
+        player.loses = player.loses + 1;
+        enemy.wins = enemy.wins + 1;
+      } else {
+        fillHp("hpPlayer");
+      }
 
+      // update players
+      if (battleFinished === true) {
+        enemy.currentHp = enemy.initialHp;
+        enemy.attack = "";
+        enemy.defence1 = "";
+        enemy.defence2 = "";
+        player.currentHp = player.initialHp;
+        player.enemy = 0;
+        player.attack = "";
+        player.defence1 = "";
+        player.defence2 = "";
+      }
+      localStorage["player"] = JSON.stringify(player);
+      localStorage[enemy.id] = JSON.stringify(enemy);
       battleLog();
     }
 

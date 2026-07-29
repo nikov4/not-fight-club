@@ -394,9 +394,17 @@ p {
   align-items: flex-start;
   gap: 10px;
   overflow-y: auto;
-  border0: 1px solid #ccc;
 }
 
 .log-entry {
   font-size: 14px;
+}
+
+.result-container {
+  display: flex;
+  align-self: center;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  font-size: 36px;
 }
