@@ -623,6 +623,7 @@ function battle() {
         player.attack = "";
         player.defence1 = "";
         player.defence2 = "";
+        localStorage["log"] = JSON.stringify("");
       }
       localStorage["player"] = JSON.stringify(player);
       localStorage[enemy.id] = JSON.stringify(enemy);
