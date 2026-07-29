@@ -1,13 +1,17 @@
 // Avatars
 const Avatars = ["default", "hero-01", "hero-02", "hero-03", "hero-04", "hero-05"];
+const enemyAvatars = ["enemy-01", "enemy-02", "enemy-03", "enemy-04", "enemy-05"];
+const enemyNames = ["Gorg", "Spike", "Wraith", "Fang", "Grim"];
+const Zones = ["Head", "Neck", "Body", "Belly", "Legs"];
 
 // Player
 class Player {
-  constructor(id, name, avatar, hp, wins, loses, attack, defence1, defence2) {
+  constructor(id, name, avatar, initialHp, currentHp, wins, loses, attack, defence1, defence2) {
     this.id = id;
     this.name = name;
     this.avatar = avatar;
-    this.hp = hp;
+    this.initialHp = initialHp;
+    this.currentHp = currentHp;
     this.wins = wins;
     this.loses = loses;
     this.attack = attack;
@@ -17,6 +21,7 @@ class Player {
 }
 
 let player;
+let enemy;
 let title = "Not Fight Club";
 
 // create container
@@ -30,18 +35,7 @@ registerCheck();
 
 // check registration
 function registerCheck() {
-  /*
-  let keys = Object.keys(localStorage);
-  for (let key of keys) {
-    let value = localStorage.getItem(key);
-    const keyHasNumber = /\d/.test(key);
-    if (keyHasNumber === true) {
-      player = JSON.parse(localStorage.getItem(key));
-    }
-  }
-  */
   player = JSON.parse(localStorage.getItem("player"));
-  console.log("player=", player);
   if (player === null || player === undefined) {
     registerForm();
   } else {
@@ -86,11 +80,33 @@ function registerForm() {
 
 // registration
 function register() {
+  // player
   let playerName = document.getElementById("registerName").value.trim();
   // let playerId = Math.floor(Math.random() * 10000);
   const playerId = "player";
-  const player = new Player(playerId, playerName, "default", 150, 0, 0, "", "", "");
+  const player = new Player(playerId, playerName, "default", 150, 150, 0, 0, "", "", "");
   localStorage[playerId] = JSON.stringify(player);
+  // enemies
+  let j = 0;
+  for (const enemyAvatar of enemyAvatars) {
+    const enemyId = Math.floor(Math.random() * 10000);
+    const enemyHp = Math.floor(Math.random() * 100) + 100;
+    const enemyAttack = Math.floor(Math.random() * 5);
+    const enemyDefence1 = Math.floor(Math.random() * 5);
+    const enemyDefence2 = getDefenceZone(enemyId, enemyDefence1);
+    const enemy = new Player(enemyId, enemyNames[j], enemyAvatar, enemyHp, enemyHp, 0, 0, enemyAttack, enemyDefence1, enemyDefence2);
+    localStorage[enemyAvatar] = JSON.stringify(enemy);
+    j++;
+  }
+  function getDefenceZone(enemyId, defenceZone) {
+    const newDefenceZone = Math.floor(Math.random() * 5);
+    if (newDefenceZone === defenceZone) {
+      return getDefenceZone(enemyId, defenceZone);
+    } else {
+      return newDefenceZone;
+    }
+  }
+
   mainContainer.replaceChildren();
   registerCheck();
 }
@@ -325,5 +341,146 @@ function battle() {
   document.title = title + " - Battle";
   window.history.pushState({}, "", "#battle");
   document.getElementById("pageName").textContent = "Battle";
-  console.log("id=", player.id, "name=", player.name);
+
+  // get random enemy
+  const enemyNum = Math.floor(Math.random() * 5);
+  let keys = Object.keys(localStorage);
+  let j = 0;
+  for (let key of keys) {
+    let value = localStorage.getItem(key);
+    const keyHasNumber = /enemy-\d\d/.test(key);
+    if (keyHasNumber === true && j === enemyNum) {
+      enemy = JSON.parse(localStorage.getItem(key));
+    }
+    j++;
+  }
+  // console.log("enemyNum=", enemyNum, "enemy=", enemy);
+
+  if (enemy !== undefined) {
+    let battleContainer = mainContainer.appendChild(document.createElement("div"));
+    battleContainer.classList.add("battle-container");
+
+    // player
+    let memberContainer = battleContainer.appendChild(document.createElement("div"));
+    memberContainer.classList.add("battle-member-container");
+    element = memberContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-member-name");
+    element.appendChild(document.createTextNode(player.name));
+    element = memberContainer.appendChild(document.createElement("div"));
+    let avatarSrc = "./assets/images/" + player.avatar + ".png";
+    let battleAvatar = element.appendChild(document.createElement("img"));
+    battleAvatar.setAttribute("src", avatarSrc);
+    let memberHpContainer = memberContainer.appendChild(document.createElement("div"));
+    memberHpContainer.classList.add("battle-hp-container");
+    element = memberHpContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-hp-line");
+    element = memberContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-hp-text");
+    element.setAttribute("id", "hpHero");
+    element.appendChild(document.createTextNode(`${player.currentHp} / ${player.initialHp}`));
+
+    // attack parameters
+    let parametersContainer = battleContainer.appendChild(document.createElement("div"));
+    parametersContainer.classList.add("parameters-container");
+    element = parametersContainer.appendChild(document.createElement("div"));
+    element.appendChild(document.createTextNode("Please pick 1 Attack zone and 2 Defence zones"));
+    let parametersZones = parametersContainer.appendChild(document.createElement("div"));
+    parametersZones.classList.add("parameters-zones");
+
+    // attack
+    let j = 0;
+    let selectZones = parametersZones.appendChild(document.createElement("div"));
+    selectZones.appendChild(document.createTextNode("Attack Zones"));
+    selectZones.classList.add("zones-column");
+    for (let zone of Zones) {
+      let element = selectZones.appendChild(document.createElement("div"));
+      element.classList.add("select-zone");
+      const selectInput = element.appendChild(document.createElement("input"));
+      selectInput.setAttribute("type", "checkbox");
+      selectInput.setAttribute("name", "attack");
+      selectInput.setAttribute("data-attack", j);
+      selectInput.addEventListener("click", () => {
+        battleCheck();
+      });
+      const selectLabel = element.appendChild(document.createElement("label"));
+      selectLabel.appendChild(document.createTextNode(zone));
+      j++;
+    }
+
+    // defence
+    j = 0;
+    selectZones = parametersZones.appendChild(document.createElement("div"));
+    selectZones.appendChild(document.createTextNode("Defence Zones"));
+    selectZones.classList.add("zones-column");
+    for (let zone of Zones) {
+      let element = selectZones.appendChild(document.createElement("div"));
+      element.classList.add("select-zone");
+      const selectInput = element.appendChild(document.createElement("input"));
+      selectInput.setAttribute("type", "checkbox");
+      selectInput.setAttribute("name", "defence");
+      selectInput.setAttribute("data-defence", j);
+      selectInput.addEventListener("click", () => {
+        battleCheck();
+      });
+      const selectLabel = element.appendChild(document.createElement("label"));
+      selectLabel.appendChild(document.createTextNode(zone));
+      j++;
+    }
+
+    // attack button
+    element = parametersContainer.appendChild(document.createElement("div"));
+    let btnElement = element.appendChild(document.createElement("button"));
+    btnElement.addEventListener("click", () => {
+      battleMove();
+    });
+    btnElement.classList.add("main-button");
+    btnElement.setAttribute("type", "button");
+    btnElement.appendChild(document.createTextNode("Attack!"));
+    btnElement.setAttribute("disabled", "disabled");
+
+    // battle check
+    function battleCheck() {
+      const zonesAttacks = document.querySelectorAll('input[name="attack"]:checked').length;
+      const zonesDefences = document.querySelectorAll('input[name="defence"]:checked').length;
+      if (zonesAttacks === 1 && zonesDefences === 2) {
+        btnElement.removeAttribute("disabled", "disabled");
+      } else {
+        btnElement.setAttribute("disabled", "disabled");
+      }
+    }
+
+    // battle move
+    function battleMove() {
+      const zonesAttack = document.querySelectorAll('input[name="attack"]:checked');
+      const zonesDefence = document.querySelectorAll('input[name="defence"]:checked');
+      for (let zoneChecked of zonesAttack) {
+        console.log("data-attack=", zoneChecked.dataset.attack);
+      }
+      for (let zoneChecked of zonesDefence) {
+        console.log("data-defence=", zoneChecked.dataset.defence);
+      }
+    }
+
+    // enemy
+    memberContainer = battleContainer.appendChild(document.createElement("div"));
+    memberContainer.classList.add("battle-member-container");
+    element = memberContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-member-name");
+    element.appendChild(document.createTextNode(enemy.name));
+    element = memberContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-avatar");
+    avatarSrc = "./assets/images/" + enemy.avatar + ".jpg";
+    battleAvatar = element.appendChild(document.createElement("img"));
+    battleAvatar.setAttribute("src", avatarSrc);
+    memberHpContainer = memberContainer.appendChild(document.createElement("div"));
+    memberHpContainer.classList.add("battle-hp-container");
+    element = memberHpContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-hp-line");
+    element = memberContainer.appendChild(document.createElement("div"));
+    element.classList.add("battle-hp-text");
+    element.setAttribute("id", "hpEnemy");
+    element.appendChild(document.createTextNode(`${enemy.currentHp} / ${enemy.initialHp}`));
+  } else {
+    battle();
+  }
 }
