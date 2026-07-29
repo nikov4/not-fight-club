@@ -20,6 +20,17 @@ class Player {
   }
 }
 
+// battle log
+class Log {
+  constructor(who, whom, where, damage, critical) {
+    this.who = who;
+    this.whom = whom;
+    this.where = where;
+    this.damage = damage;
+    this.critical = critical;
+  }
+}
+
 let player;
 let enemy;
 let title = "Not Fight Club";
@@ -82,7 +93,6 @@ function registerForm() {
 function register() {
   // player
   let playerName = document.getElementById("registerName").value.trim();
-  // let playerId = Math.floor(Math.random() * 10000);
   const playerId = "player";
   const player = new Player(playerId, playerName, "default", 150, 150, 0, 0, "", "", "");
   localStorage[playerId] = JSON.stringify(player);
@@ -94,19 +104,11 @@ function register() {
     const enemyAttack = Math.floor(Math.random() * 5);
     const enemyDefence1 = Math.floor(Math.random() * 5);
     const enemyDefence2 = getDefenceZone(enemyId, enemyDefence1);
-    const enemy = new Player(enemyId, enemyNames[j], enemyAvatar, enemyHp, enemyHp, 0, 0, enemyAttack, enemyDefence1, enemyDefence2);
-    localStorage[enemyAvatar] = JSON.stringify(enemy);
+    const enemy = new Player(enemyId, enemyNames[j], enemyAvatar, enemyHp, enemyHp, 0, 0, "", "", "");
+    // const enemy = new Player(enemyId, enemyNames[j], enemyAvatar, enemyHp, enemyHp, 0, 0, enemyAttack, enemyDefence1, enemyDefence2);
+    localStorage[enemyId] = JSON.stringify(enemy);
     j++;
   }
-  function getDefenceZone(enemyId, defenceZone) {
-    const newDefenceZone = Math.floor(Math.random() * 5);
-    if (newDefenceZone === defenceZone) {
-      return getDefenceZone(enemyId, defenceZone);
-    } else {
-      return newDefenceZone;
-    }
-  }
-
   mainContainer.replaceChildren();
   registerCheck();
 }
@@ -348,17 +350,18 @@ function battle() {
   let j = 0;
   for (let key of keys) {
     let value = localStorage.getItem(key);
-    const keyHasNumber = /enemy-\d\d/.test(key);
+    const keyHasNumber = /\d/.test(key);
     if (keyHasNumber === true && j === enemyNum) {
       enemy = JSON.parse(localStorage.getItem(key));
     }
     j++;
   }
-  // console.log("enemyNum=", enemyNum, "enemy=", enemy);
 
   if (enemy !== undefined) {
     let battleContainer = mainContainer.appendChild(document.createElement("div"));
     battleContainer.classList.add("battle-container");
+    let logContainer = mainContainer.appendChild(document.createElement("div"));
+    logContainer.classList.add("log-container");
 
     // player
     let memberContainer = battleContainer.appendChild(document.createElement("div"));
@@ -374,9 +377,10 @@ function battle() {
     memberHpContainer.classList.add("battle-hp-container");
     element = memberHpContainer.appendChild(document.createElement("div"));
     element.classList.add("battle-hp-line");
+    element.setAttribute("id", "hpPlayerLine");
     element = memberContainer.appendChild(document.createElement("div"));
     element.classList.add("battle-hp-text");
-    element.setAttribute("id", "hpHero");
+    element.setAttribute("id", "hpPlayer");
     element.appendChild(document.createTextNode(`${player.currentHp} / ${player.initialHp}`));
 
     // attack parameters
@@ -387,7 +391,7 @@ function battle() {
     let parametersZones = parametersContainer.appendChild(document.createElement("div"));
     parametersZones.classList.add("parameters-zones");
 
-    // attack
+    // attack zones
     let j = 0;
     let selectZones = parametersZones.appendChild(document.createElement("div"));
     selectZones.appendChild(document.createTextNode("Attack Zones"));
@@ -399,6 +403,9 @@ function battle() {
       selectInput.setAttribute("type", "checkbox");
       selectInput.setAttribute("name", "attack");
       selectInput.setAttribute("data-attack", j);
+      if (j === player.attack) {
+        selectInput.setAttribute("checked", "");
+      }
       selectInput.addEventListener("click", () => {
         battleCheck();
       });
@@ -407,7 +414,7 @@ function battle() {
       j++;
     }
 
-    // defence
+    // defence zones
     j = 0;
     selectZones = parametersZones.appendChild(document.createElement("div"));
     selectZones.appendChild(document.createTextNode("Defence Zones"));
@@ -419,6 +426,9 @@ function battle() {
       selectInput.setAttribute("type", "checkbox");
       selectInput.setAttribute("name", "defence");
       selectInput.setAttribute("data-defence", j);
+      if (j === player.defence1 || j === player.defence2) {
+        selectInput.setAttribute("checked", "");
+      }
       selectInput.addEventListener("click", () => {
         battleCheck();
       });
@@ -437,6 +447,7 @@ function battle() {
     btnElement.setAttribute("type", "button");
     btnElement.appendChild(document.createTextNode("Attack!"));
     btnElement.setAttribute("disabled", "disabled");
+    battleCheck();
 
     // battle check
     function battleCheck() {
@@ -449,16 +460,101 @@ function battle() {
       }
     }
 
+    // fill hp line
+    function fillHp(id) {
+      if (id === "hpEnemy") {
+        const hpSize = Math.floor((enemy.currentHp / enemy.initialHp) * 100);
+        const hpEnemyLine = document.getElementById("hpEnemyLine");
+        hpEnemyLine.style.width = hpSize + "%";
+      } else {
+        const hpSize = Math.floor((player.currentHp / player.initialHp) * 100);
+        const hpPlayerLine = document.getElementById("hpPlayerLine");
+        hpPlayerLine.style.width = hpSize + "%";
+      }
+    }
+
     // battle move
     function battleMove() {
+      player = JSON.parse(localStorage.getItem("player"));
+      enemy = JSON.parse(localStorage.getItem(enemy.id));
       const zonesAttack = document.querySelectorAll('input[name="attack"]:checked');
       const zonesDefence = document.querySelectorAll('input[name="defence"]:checked');
       for (let zoneChecked of zonesAttack) {
-        console.log("data-attack=", zoneChecked.dataset.attack);
+        player.attack = Number(zoneChecked.dataset.attack);
       }
+      let playerDefence = "";
       for (let zoneChecked of zonesDefence) {
-        console.log("data-defence=", zoneChecked.dataset.defence);
+        playerDefence = playerDefence + "," + zoneChecked.dataset.defence;
       }
+
+      // save player zones
+      const defences = playerDefence.split(",");
+      player.defence1 = Number(defences[1]);
+      player.defence2 = Number(defences[2]);
+      localStorage[player.id] = JSON.stringify(player);
+
+      // save enemy zones
+      const enemyAttack = Math.floor(Math.random() * 5);
+      const enemyDefence1 = Math.floor(Math.random() * 5);
+      const enemyDefence2 = getDefenceZone(enemy.id, enemyDefence1);
+      enemy.attack = enemyAttack;
+      enemy.defence1 = enemyDefence1;
+      enemy.defence2 = enemyDefence2;
+      localStorage[enemy.id] = JSON.stringify(enemy);
+      let log = JSON.parse(localStorage.getItem("log")) || [];
+      let damage = 0;
+      let initialHp = 0,
+        currentHp = 0,
+        hpSize = 0;
+
+      // player attack
+      if (player.attack === enemy.defence1 || player.attack === enemy.defence2) {
+        // console.log(`${player.name} attacked ${enemy.name} to ${Zones[player.attack]} but ${enemy.name} priotect his ${Zones[player.attack]}`);
+      } else {
+        // console.log(`${player.name} attacked ${enemy.name} to ${Zones[player.attack]} and deal 10 damage`);
+        damage = 10;
+      }
+      let logAdd = new Log(player.name, enemy.name, `${Zones[player.attack]}`, damage, "");
+      log.push(logAdd);
+      localStorage["log"] = JSON.stringify(log);
+      let hpEnemy = document.getElementById("hpEnemy");
+      initialHp = enemy.initialHp;
+      currentHp = enemy.currentHp;
+      if (initialHp === currentHp) {
+        enemy.currentHp = initialHp - damage;
+      } else {
+        enemy.currentHp = currentHp - damage;
+      }
+      hpEnemy.replaceChildren();
+      hpEnemy.appendChild(document.createTextNode(`${enemy.currentHp} / ${enemy.initialHp}`));
+      localStorage[enemy.id] = JSON.stringify(enemy);
+      fillHp("hpEnemy");
+
+      // enemy attack
+      if (enemy.attack === player.defence1 || enemy.attack === player.defence2) {
+        // console.log(`${enemy.name} attacked ${player.name} to ${Zones[enemy.attack]} but ${player.name} priotect his ${Zones[enemy.attack]}`);
+      } else {
+        // console.log(`${enemy.name} attacked ${player.name} to ${Zones[enemy.attack]} and deal 10 damage`);
+        damage = 10;
+      }
+      logAdd = new Log(enemy.name, player.name, `${Zones[enemy.attack]}`, damage, "");
+      log.push(logAdd);
+      localStorage["log"] = JSON.stringify(log);
+      let hpPlayer = document.getElementById("hpPlayer");
+      initialHp = player.initialHp;
+      currentHp = player.currentHp;
+      if (initialHp === currentHp) {
+        player.currentHp = initialHp - damage;
+      } else {
+        player.currentHp = currentHp - damage;
+      }
+      localStorage["player"] = JSON.stringify(player);
+      hpPlayer.replaceChildren();
+      hpPlayer.appendChild(document.createTextNode(`${player.currentHp} / ${player.initialHp}`));
+      localStorage["player"] = JSON.stringify(player);
+      fillHp("hpPlayer");
+
+      battleLog();
     }
 
     // enemy
@@ -476,11 +572,41 @@ function battle() {
     memberHpContainer.classList.add("battle-hp-container");
     element = memberHpContainer.appendChild(document.createElement("div"));
     element.classList.add("battle-hp-line");
+    element.setAttribute("id", "hpEnemyLine");
     element = memberContainer.appendChild(document.createElement("div"));
     element.classList.add("battle-hp-text");
     element.setAttribute("id", "hpEnemy");
     element.appendChild(document.createTextNode(`${enemy.currentHp} / ${enemy.initialHp}`));
+
+    // battle log
+    function battleLog() {
+      logs = JSON.parse(localStorage.getItem("log")) || [];
+      logContainer.replaceChildren();
+      for (let logString of Object.values(logs.reverse())) {
+        let element = logContainer.appendChild(document.createElement("p"));
+        if (logString.damage > 0) {
+          element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where} and deal ${logString.damage} damage`));
+        } else {
+          element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where} but ${logString.whom} was able to protect his ${logString.where}`));
+        }
+        element.classList.add("log-entry");
+      }
+    }
+
+    fillHp("hpPlayer");
+    fillHp("hpEnemy");
+    battleLog();
   } else {
     battle();
+  }
+}
+
+// get unique defence zone
+function getDefenceZone(enemyId, defenceZone) {
+  const newDefenceZone = Math.floor(Math.random() * 5);
+  if (newDefenceZone === defenceZone) {
+    return getDefenceZone(enemyId, defenceZone);
+  } else {
+    return newDefenceZone;
   }
 }
