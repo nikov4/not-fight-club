@@ -662,18 +662,25 @@ function battle() {
       logs = JSON.parse(localStorage.getItem("log")) || [];
       logContainer.replaceChildren();
       for (let logString of Object.values(logs.reverse())) {
+        let logEntry = "";
         let element = logContainer.appendChild(document.createElement("p"));
-        element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where}`));
+        logEntry = `<b>${logString.who}</b> attacked <b>${logString.whom}</b> to <span class="accent-where">${logString.where}</span>`;
+        //element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where}`));
         if (logString.damage <= 0) {
-          element.appendChild(document.createTextNode(` but ${logString.whom} was able to protect his ${logString.where}`));
+          logEntry = logEntry + ` but <b>${logString.whom}</b> was able to protect his <span class="accent-where">${logString.where}</span>`;
+          // element.appendChild(document.createTextNode(` but ${logString.whom} was able to protect his ${logString.where}`));
         } else if (logString.damage === 15) {
-          element.appendChild(document.createTextNode(`  ${logString.whom} tried to block but ${logString.who} have crit for ${logString.damage} `));
+          logEntry = logEntry + ` <b>${logString.whom}</b> tried to block but <b>${logString.who}</b> have crit for <span class="accent-damage">${logString.damage}</span>`;
+          // element.appendChild(document.createTextNode(` ${logString.whom} tried to block but ${logString.who} have crit for ${logString.damage} `));
         } else {
-          element.appendChild(document.createTextNode(` and deal ${logString.damage} `));
+          logEntry = logEntry + ` and deal <span class="accent-damage">${logString.damage}</span>`;
+          // element.appendChild(document.createTextNode(` and deal ${logString.damage} `));
         }
         if (logString.critical) {
-          element.appendChild(document.createTextNode(` with critical damage`));
+          logEntry = logEntry + ` with <span class="accent-critical">critical damage</span>`;
+          // element.appendChild(document.createTextNode(` with critical damage`));
         }
+        element.innerHTML = logEntry;
         element.classList.add("log-entry");
       }
     }

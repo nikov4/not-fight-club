@@ -400,6 +400,21 @@ p {
   font-size: 14px;
 }
 
+.accent-where {
+  color: blue;
+  font-weight: 500;
+}
+
+.accent-damage {
+  color: darkgreen;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.accent-critical {
+  color: #ff3300;
+}
+
 .result-container {
   display: flex;
   align-self: center;
