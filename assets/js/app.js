@@ -531,18 +531,22 @@ function battle() {
       localStorage[enemy.id] = JSON.stringify(enemy);
       let log = JSON.parse(localStorage.getItem("log")) || [];
       let damage = 0;
+      let crit = 0;
       let initialHp = 0,
         currentHp = 0,
         hpSize = 0;
 
       // player attack
+      crit = checkCritical();
       if (player.attack === enemy.defence1 || player.attack === enemy.defence2) {
-        // console.log(`${player.name} attacked ${enemy.name} to ${Zones[player.attack]} but ${enemy.name} priotect his ${Zones[player.attack]}`);
+        damage = crit * 3;
       } else {
-        // console.log(`${player.name} attacked ${enemy.name} to ${Zones[player.attack]} and deal 10 damage`);
-        damage = 10;
+        damage = Number(10 + crit * 2);
       }
-      let logAdd = new Log(player.name, enemy.name, `${Zones[player.attack]}`, damage, "");
+
+      // log add
+      // console.log("player.attack=", player.attack, "enemy.defence1=", enemy.defence1, "enemy.defence2=", enemy.defence2, "crit=", crit, "damage=", damage);
+      let logAdd = new Log(player.name, enemy.name, `${Zones[player.attack]}`, damage, crit);
       log.push(logAdd);
       localStorage["log"] = JSON.stringify(log);
       let hpEnemy = document.getElementById("hpEnemy");
@@ -575,13 +579,15 @@ function battle() {
       }
 
       // enemy attack
+      crit = checkCritical();
       if (enemy.attack === player.defence1 || enemy.attack === player.defence2) {
-        // console.log(`${enemy.name} attacked ${player.name} to ${Zones[enemy.attack]} but ${player.name} priotect his ${Zones[enemy.attack]}`);
+        damage = crit * 3;
       } else {
-        // console.log(`${enemy.name} attacked ${player.name} to ${Zones[enemy.attack]} and deal 10 damage`);
-        damage = 10;
+        damage = Number(10 + crit * 2);
       }
-      logAdd = new Log(enemy.name, player.name, `${Zones[enemy.attack]}`, damage, "");
+      //log add
+      // console.log("enemy.attack=", enemy.attack, "player.defence1=", player.defence1, "player.defence2=", player.defence2, "crit=", crit, "damage=", damage);
+      logAdd = new Log(enemy.name, player.name, `${Zones[enemy.attack]}`, damage, crit);
       log.push(logAdd);
       localStorage["log"] = JSON.stringify(log);
       let hpPlayer = document.getElementById("hpPlayer");
@@ -657,12 +663,29 @@ function battle() {
       logContainer.replaceChildren();
       for (let logString of Object.values(logs.reverse())) {
         let element = logContainer.appendChild(document.createElement("p"));
-        if (logString.damage > 0) {
-          element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where} and deal ${logString.damage} damage`));
+        element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where}`));
+        if (logString.damage <= 0) {
+          element.appendChild(document.createTextNode(` but ${logString.whom} was able to protect his ${logString.where}`));
+        } else if (logString.damage === 15) {
+          element.appendChild(document.createTextNode(`  ${logString.whom} tried to block but ${logString.who} have crit for ${logString.damage} `));
         } else {
-          element.appendChild(document.createTextNode(`${logString.who} attacked ${logString.whom} to ${logString.where} but ${logString.whom} was able to protect his ${logString.where}`));
+          element.appendChild(document.createTextNode(` and deal ${logString.damage} `));
+        }
+        if (logString.critical) {
+          element.appendChild(document.createTextNode(` with critical damage`));
         }
         element.classList.add("log-entry");
+      }
+    }
+
+    // critical damage
+    function checkCritical() {
+      const criticalChance = 0.15;
+      const isCritical = Math.random() < criticalChance;
+      if (isCritical) {
+        return 5;
+      } else {
+        return 0;
       }
     }
 
