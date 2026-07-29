@@ -394,7 +394,6 @@ p {
   align-items: flex-start;
   gap: 10px;
   overflow-y: auto;
-  border0: 1px solid #ccc;
 }
 
 .log-entry {

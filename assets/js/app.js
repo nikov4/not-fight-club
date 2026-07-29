@@ -6,7 +6,7 @@ const Zones = ["Head", "Neck", "Body", "Belly", "Legs"];
 
 // Player
 class Player {
-  constructor(id, name, avatar, initialHp, currentHp, wins, loses, attack, defence1, defence2) {
+  constructor(id, name, avatar, initialHp, currentHp, wins, loses, attack, defence1, defence2, enemy) {
     this.id = id;
     this.name = name;
     this.avatar = avatar;
@@ -17,6 +17,7 @@ class Player {
     this.attack = attack;
     this.defence1 = defence1;
     this.defence2 = defence2;
+    this.enemy = enemy;
   }
 }
 
@@ -94,7 +95,7 @@ function register() {
   // player
   let playerName = document.getElementById("registerName").value.trim();
   const playerId = "player";
-  const player = new Player(playerId, playerName, "default", 150, 150, 0, 0, "", "", "");
+  const player = new Player(playerId, playerName, "default", 150, 150, 0, 0, "", "", "", 0);
   localStorage[playerId] = JSON.stringify(player);
   // enemies
   let j = 0;
@@ -345,16 +346,21 @@ function battle() {
   document.getElementById("pageName").textContent = "Battle";
 
   // get random enemy
-  const enemyNum = Math.floor(Math.random() * 5);
-  let keys = Object.keys(localStorage);
-  let j = 0;
-  for (let key of keys) {
-    let value = localStorage.getItem(key);
-    const keyHasNumber = /\d/.test(key);
-    if (keyHasNumber === true && j === enemyNum) {
-      enemy = JSON.parse(localStorage.getItem(key));
+  if (player.enemy === 0) {
+    const enemyNum = Math.floor(Math.random() * 5);
+    let keys = Object.keys(localStorage);
+    let j = 0;
+    for (let key of keys) {
+      let value = localStorage.getItem(key);
+      const keyHasNumber = /\d/.test(key);
+      if (keyHasNumber === true && j === enemyNum) {
+        enemy = JSON.parse(localStorage.getItem(key));
+      }
+      j++;
     }
-    j++;
+  } else {
+    // continue fight
+    enemy = JSON.parse(localStorage.getItem(player.enemy));
   }
 
   if (enemy !== undefined) {
@@ -477,6 +483,7 @@ function battle() {
     function battleMove() {
       player = JSON.parse(localStorage.getItem("player"));
       enemy = JSON.parse(localStorage.getItem(enemy.id));
+      player.enemy = enemy.id;
       const zonesAttack = document.querySelectorAll('input[name="attack"]:checked');
       const zonesDefence = document.querySelectorAll('input[name="defence"]:checked');
       for (let zoneChecked of zonesAttack) {
