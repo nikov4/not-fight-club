@@ -399,3 +399,12 @@ p {
 .log-entry {
   font-size: 14px;
 }
+
+.result-container {
+  display: flex;
+  align-self: center;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  font-size: 36px;
+}
