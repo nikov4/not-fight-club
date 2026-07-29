@@ -7,6 +7,11 @@ h1 {
   font-size: 20px;
 }
 
+p {
+  padding: 0;
+  margin: 0;
+}
+
 .container {
   display: flex;
   align-self: center;
@@ -282,4 +287,116 @@ h1 {
   transition-property: all;
   transition-delay: 0.1s;
   transition-timing-function: ease-in-out;
+}
+
+/* battle */
+
+.battle-container {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+  gap: 50px;
+}
+
+.battle-member-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.battle-member-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.battle-hp-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  width: 300px;
+  height: 20px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.battle-hp-line {
+  align-self: start;
+  height: 100%;
+  width: 100%;
+  background-color: #ff3300;
+  transition: 0.4s ease-in-out;
+}
+
+.battle-hp-text {
+  text-align: center;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: bold;
+  color: #000;
+}
+
+.parameters-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.parameters-zones {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.zones-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-zone {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.log-container {
+  padding: 20px 20px;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 10px;
+  overflow-y: auto;
+  border0: 1px solid #ccc;
+}
+
+.log-entry {
+  font-size: 14px;
 }
